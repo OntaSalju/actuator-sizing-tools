@@ -43,7 +43,13 @@ const App = () => {
     return (
         <div className="bg-gray-50 min-h-screen font-sans">
             <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <header className="mb-10">
+                <header className="mb-10 text-center">
+                    <img
+                        src="/logo.png"
+                        alt="Company Logo"
+                        className="h-12 mx-auto mb-6"
+                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x50/ef4444/ffffff?text=Upload+logo.png'; }}
+                    />
                     <h1 className="text-4xl font-bold text-gray-800">Offline Actuator Sizing & Pricing Tool</h1>
                     <p className="mt-2 text-lg text-gray-500">Size your actuator or manage your local offline database.</p>
                 </header>
