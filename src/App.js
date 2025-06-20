@@ -47,8 +47,18 @@ const App = () => {
 
     return (
         <div className="bg-slate-100 min-h-screen font-sans">
-            <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-                <header className="text-center mb-10">
+            <div className="relative container mx-auto p-4 sm:p-6 lg:p-8">
+                {/* Logo Component */}
+                <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-20">
+                    {/* The placeholder has been replaced with your logo from Google Drive. */}
+                    <img
+                        src="https://drive.google.com/uc?export=view&id=1y0OHHtX3JvPyn8kyzTfG4fN1kPzbjNd-"
+                        alt="Company Logo"
+                        className="h-8 sm:h-10"
+                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x40/ef4444/ffffff?text=Logo+Error'; }}
+                    />
+                </div>
+                <header className="text-center mb-10 pt-16 sm:pt-0">
                     <h1 className="text-4xl font-bold text-slate-800 tracking-tight">Actuator Sizing & Pricing Tool</h1>
                     <p className="mt-3 text-lg text-slate-600">An intelligent offline tool to streamline your engineering workflow.</p>
                 </header>
@@ -223,40 +233,44 @@ const ActuatorForm = ({ actuator, onSave, onClose }) => {
     const torqueLabels = ['BTO', 'RTO', 'ETO', 'ETC', 'RTC', 'BTC'];
     
     return (
-        <div className="relative z-10" aria-modal="true"><div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
-            <div className="fixed inset-0 z-10 overflow-y-auto"><div className="flex min-h-full items-center justify-center p-4">
-                <Card className="w-full max-w-lg animate-fade-in">
-                    <form onSubmit={handleSubmit}>
-                        <h3 className="text-xl font-bold text-slate-800 mb-6">{actuator ? 'Edit' : 'Add New'} Actuator</h3>
-                        <div className="space-y-4">
-                            <div>
-                                <label htmlFor="model" className="block text-sm font-medium text-slate-600">Model Name</label>
-                                <input type="text" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2.5"/>
-                            </div>
-                            <div>
-                                <label htmlFor="price" className="block text-sm font-medium text-slate-600">Price ($)</label>
-                                <input type="number" name="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2.5"/>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-600 mb-2">Torque Curve (Nm)</label>
-                                <div className="grid grid-cols-3 gap-3">
-                                    {torqueLabels.map((label, i) => (<div key={i}>
-                                        <label className="block text-xs font-medium text-slate-500">{label}</label>
-                                        <input type="number" value={formData.torqueCurve[i]} onChange={(e) => handleTorqueChange(i, e.target.value)} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2"/>
-                                    </div>))}
+        <div className="relative z-10" aria-modal="true">
+            <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+            <div className="fixed inset-0 z-10 overflow-y-auto">
+                <div className="flex min-h-full items-center justify-center p-4">
+                    <Card className="w-full max-w-lg animate-fade-in">
+                        <form onSubmit={handleSubmit}>
+                            <h3 className="text-xl font-bold text-slate-800 mb-6">{actuator ? 'Edit' : 'Add New'} Actuator</h3>
+                            <div className="space-y-4">
+                                <div>
+                                    <label htmlFor="model" className="block text-sm font-medium text-slate-600">Model Name</label>
+                                    <input type="text" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2.5"/>
                                 </div>
+                                <div>
+                                    <label htmlFor="price" className="block text-sm font-medium text-slate-600">Price ($)</label>
+                                    <input type="number" name="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2.5"/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-600 mb-2">Torque Curve (Nm)</label>
+                                    <div className="grid grid-cols-3 gap-3">
+                                        {torqueLabels.map((label, i) => (<div key={i}>
+                                            <label className="block text-xs font-medium text-slate-500">{label}</label>
+                                            <input type="number" value={formData.torqueCurve[i]} onChange={(e) => handleTorqueChange(i, e.target.value)} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2"/>
+                                        </div>))}
+                                    </div>
+                                </div>
+                                {error && <p className="text-sm text-red-600">{error}</p>}
                             </div>
-                            {error && <p className="text-sm text-red-600">{error}</p>}
-                        </div>
-                        <div className="mt-8 flex justify-end space-x-3">
-                            <button type="button" onClick={onClose} className="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-full hover:bg-slate-300 transition-colors">Cancel</button>
-                            <button type="submit" className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-indigo-700 transition-colors">Save Actuator</button>
-                        </div>
-                    </form>
-                </Card>
-            </div></div>
+                            <div className="mt-8 flex justify-end space-x-3">
+                                <button type="button" onClick={onClose} className="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-full hover:bg-slate-300 transition-colors">Cancel</button>
+                                <button type="submit" className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-indigo-700 transition-colors">Save Actuator</button>
+                            </div>
+                        </form>
+                    </Card>
+                </div>
+            </div>
         </div>
     );
 };
 
 export default App;
+
