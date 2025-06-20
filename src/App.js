@@ -49,7 +49,7 @@ const App = () => {
             {/* Sidebar Navigation */}
             <aside className="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
                 <div className="h-16 flex items-center justify-center px-4 border-b border-gray-200">
-                     <img src="/logo.png" alt="Company Logo" className="h-10" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x40/ef4444/ffffff?text=Upload+logo.png'; }}/>
+                     <img src="/logo.png" alt="Company Logo" className="h-8" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x40/ef4444/ffffff?text=Upload+logo.png'; }}/>
                 </div>
                 <nav className="flex-1 px-4 py-6 space-y-2">
                     <NavItem icon={<SizingIcon />} label="Sizing Tool" isActive={activeView === 'sizing'} onClick={() => setActiveView('sizing')} />
@@ -129,7 +129,7 @@ const SizingTool = ({ actuatorDatabase }) => {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Card><h3 className="text-gray-500">Selected Model</h3><p className="text-2xl font-bold text-gray-900 mt-1">{results.matched.model}</p></Card>
-                        <Card><h3 className="text-gray-500">Estimated Price</h3><p className="text-2xl font-bold text-gray-900 mt-1">${results.matched.price.toLocaleString()}</p></Card>
+                        <Card><h3 className="text-gray-500">Estimated Price</h3><p className="text-2xl font-bold text-gray-900 mt-1">€{results.matched.price.toLocaleString()}</p></Card>
                     </div>
                     <Card><AnalysisTable analysis={results.analysis} /></Card>
                   </div>
@@ -179,12 +179,12 @@ const DatabaseManager = ({ actuatorList, onAdd, onUpdate, onDelete }) => {
             <Card>
                 <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50"><tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <th className="px-6 py-3">Model</th><th className="px-6 py-3">Price ($)</th><th className="px-6 py-3">Torque Curve (Nm)</th><th className="px-6 py-3">Actions</th>
+                        <th className="px-6 py-3">Model</th><th className="px-6 py-3">Price (€)</th><th className="px-6 py-3">Torque Curve (Nm)</th><th className="px-6 py-3">Actions</th>
                     </tr></thead>
                     <tbody className="bg-white divide-y divide-gray-200">{actuatorList.map(actuator => (
                         <tr key={actuator.id}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{actuator.model}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${actuator.price.toLocaleString()}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">€{actuator.price.toLocaleString()}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{actuator.torqueCurve.join(' / ')}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                                 <button onClick={() => handleOpenModal(actuator)} className="text-blue-600 hover:text-blue-900">Edit</button>
@@ -217,7 +217,7 @@ const ActuatorForm = ({ actuator, onSave, onClose }) => {
                         <h3 className="text-lg font-medium leading-6 text-gray-900">{actuator ? 'Edit' : 'Add'} Actuator</h3>
                         <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                             <div className="sm:col-span-3"><label htmlFor="model" className="block text-sm font-medium text-gray-700">Model</label><input type="text" name="model" id="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
-                            <div className="sm:col-span-3"><label htmlFor="price" className="block text-sm font-medium text-gray-700">Price ($)</label><input type="number" name="price" id="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
+                            <div className="sm:col-span-3"><label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (€)</label><input type="number" name="price" id="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
                             {['BTO', 'RTO', 'ETO', 'ETC', 'RTC', 'BTC'].map((label, i) => (
                                 <div className="sm:col-span-2" key={label}><label className="block text-sm font-medium text-gray-700">{label} (Nm)</label><input type="number" value={formData.torqueCurve[i]} onChange={e => handleTorqueChange(i, e.target.value)} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
                             ))}
