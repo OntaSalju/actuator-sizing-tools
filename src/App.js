@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
+// --- INITIAL DEFAULT ACTUATOR DATABASE ---
 const defaultActuatorDatabase = [
   { id: '1', model: 'AT-50', price: 150, torqueCurve: [80, 60, 40, 100, 120, 140] },
   { id: '2', model: 'AT-101', price: 250, torqueCurve: [160, 120, 90, 180, 220, 250] },
@@ -10,8 +11,14 @@ const defaultActuatorDatabase = [
   { id: '7', model: 'AT-990', price: 2800, torqueCurve: [5000, 4000, 3200, 5500, 6000, 6500] },
 ];
 
-const LOCAL_STORAGE_KEY = 'actuator_database_offline';
+const LOCAL_STORAGE_KEY = 'actuator_database_offline_v2';
 
+// --- Helper Icon Components ---
+const SizingIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0L7.86 5.89a2 2 0 01-1.28.85l-2.8.4a2 2 0 00-1.1 3.43l2.03 2.1a2 2 0 01-.58 2.75l-1.5 2.5a2 2 0 002.83 2.83l2.5-1.5a2 2 0 012.75-.58l2.1 2.03a2 2 0 003.43-1.1l.4-2.8a2 2 0 01.85-1.28l2.72-.65c1.56-.38 1.56-2.6 0-2.98l-2.72-.65a2 2 0 01-.85-1.28l-.4-2.8a2 2 0 00-3.43-1.1l-2.1 2.03a2 2 0 01-2.75-.58l-1.5-2.5zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>;
+const DatabaseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" /><path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" /><path d="M10 2a7 7 0 00-7 7c0 1.657 3.134 3 7 3s7-1.343 7-3a7 7 0 00-7-7z" /></svg>;
+const PlusIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" /></svg>;
+
+// --- MAIN APP COMPONENT ---
 const App = () => {
     const [activeView, setActiveView] = useState('sizing');
     const [actuatorList, setActuatorList] = useState([]);
@@ -19,11 +26,7 @@ const App = () => {
     useEffect(() => {
         try {
             const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-            if (savedData) {
-                setActuatorList(JSON.parse(savedData));
-            } else {
-                setActuatorList(defaultActuatorDatabase);
-            }
+            setActuatorList(savedData ? JSON.parse(savedData) : defaultActuatorDatabase);
         } catch (error) {
             console.error("Failed to load data from local storage", error);
             setActuatorList(defaultActuatorDatabase);
@@ -38,292 +41,222 @@ const App = () => {
         }
     }, [actuatorList]);
 
-    const handleAddActuator = (newActuator) => {
-        setActuatorList(prevList => [...prevList, { ...newActuator, id: Date.now().toString() }]);
-    };
-
-    const handleUpdateActuator = (updatedActuator) => {
-        setActuatorList(prevList =>
-            prevList.map(actuator =>
-                actuator.id === updatedActuator.id ? updatedActuator : actuator
-            )
-        );
-    };
-
-    const handleDeleteActuator = (id) => {
-        setActuatorList(prevList => prevList.filter(actuator => actuator.id !== id));
-    };
+    const handleAddActuator = (newActuator) => setActuatorList(prev => [...prev, { ...newActuator, id: Date.now().toString() }]);
+    const handleUpdateActuator = (updated) => setActuatorList(prev => prev.map(act => (act.id === updated.id ? updated : act)));
+    const handleDeleteActuator = (id) => setActuatorList(prev => prev.filter(actuator => actuator.id !== id));
 
     return (
-        <div className="bg-gray-100 min-h-screen font-sans p-4 sm:p-6 lg:p-8">
-            <div className="max-w-6xl mx-auto">
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800">Offline Actuator Sizing & Pricing Tool</h1>
-                    <p className="mt-2 text-gray-600">Size your actuator or manage your local offline database.</p>
+        <div className="bg-slate-100 min-h-screen font-sans">
+            <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+                <header className="text-center mb-10">
+                    <h1 className="text-4xl font-bold text-slate-800 tracking-tight">Actuator Sizing & Pricing Tool</h1>
+                    <p className="mt-3 text-lg text-slate-600">An intelligent offline tool to streamline your engineering workflow.</p>
                 </header>
-
-                <div className="mb-6">
-                    <div className="border-b border-gray-200">
-                        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
-                            <button onClick={() => setActiveView('sizing')} className={`${activeView === 'sizing' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>
-                                Sizing Tool
-                            </button>
-                            <button onClick={() => setActiveView('database')} className={`${activeView === 'database' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}>
-                                Manage Database
-                            </button>
-                        </nav>
+                
+                <div className="flex justify-center mb-8">
+                    <div className="relative flex p-1 bg-slate-200 rounded-full shadow-inner">
+                        <button onClick={() => setActiveView('sizing')} className={`relative w-40 flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-colors ${activeView === 'sizing' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}>
+                            <SizingIcon /> Sizing Tool
+                        </button>
+                        <button onClick={() => setActiveView('database')} className={`relative w-40 flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition-colors ${activeView === 'database' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}>
+                            <DatabaseIcon /> Database
+                        </button>
                     </div>
                 </div>
 
-                {activeView === 'sizing' && <SizingTool actuatorDatabase={actuatorList} />}
-                {activeView === 'database' && <DatabaseManager actuatorList={actuatorList} onAdd={handleAddActuator} onUpdate={handleUpdateActuator} onDelete={handleDeleteActuator} />}
+                <main className="transition-opacity duration-300">
+                    {activeView === 'sizing' && <SizingTool actuatorDatabase={actuatorList} />}
+                    {activeView === 'database' && <DatabaseManager actuatorList={actuatorList} onAdd={handleAddActuator} onUpdate={handleUpdateActuator} onDelete={handleDeleteActuator} />}
+                </main>
             </div>
         </div>
     );
 };
 
+// --- Reusable Card Component ---
+const Card = ({ children, className }) => (
+    <div className={`bg-white rounded-2xl shadow-lg p-6 sm:p-8 ${className}`}>
+        {children}
+    </div>
+);
+
+// --- Sizing Tool Component ---
 const SizingTool = ({ actuatorDatabase }) => {
     const [btoInput, setBtoInput] = useState('');
     const [results, setResults] = useState(null);
 
-    const calculateRequiredTorques = (bto) => {
-        if (isNaN(bto) || bto <= 0) return null;
-        return { bto, rto: bto * 0.5, eto: bto * 0.8, etc: bto * 0.9, rtc: bto * 0.6, btc: bto * 1.1 };
-    };
-
-    const findMatchingActuator = useCallback((requiredTorques) => {
-        if (!requiredTorques) return null;
-        const SAFETY_FACTOR_MIN = 1.5;
-        const suitableActuators = actuatorDatabase
-            .filter(actuator => {
-                const torques = actuator.torqueCurve;
-                return (
-                    (torques[0] / requiredTorques.bto >= SAFETY_FACTOR_MIN) &&
-                    (torques[1] / requiredTorques.rto >= SAFETY_FACTOR_MIN) &&
-                    (torques[2] / requiredTorques.eto >= SAFETY_FACTOR_MIN) &&
-                    (torques[3] / requiredTorques.etc >= SAFETY_FACTOR_MIN) &&
-                    (torques[4] / requiredTorques.rtc >= SAFETY_FACTOR_MIN) &&
-                    (torques[5] / requiredTorques.btc >= SAFETY_FACTOR_MIN)
-                );
-            })
-            .sort((a, b) => a.price - b.price);
-        return suitableActuators.length > 0 ? suitableActuators[0] : null;
+    const calculateRequiredTorques = (bto) => !isNaN(bto) && bto > 0 ? { bto, rto: bto * 0.5, eto: bto * 0.8, etc: bto * 0.9, rtc: bto * 0.6, btc: bto * 1.1 } : null;
+    
+    const findMatchingActuator = useCallback((req) => {
+        if (!req) return null;
+        const suitable = actuatorDatabase.filter(act => {
+            const t = act.torqueCurve;
+            return (t[0]/req.bto >= 1.5 && t[1]/req.rto >= 1.5 && t[2]/req.eto >= 1.5 && t[3]/req.etc >= 1.5 && t[4]/req.rtc >= 1.5 && t[5]/req.btc >= 1.5);
+        }).sort((a, b) => a.price - b.price);
+        return suitable.length > 0 ? suitable[0] : null;
     }, [actuatorDatabase]);
-
+    
     const handleCalculation = useCallback(() => {
         const bto = parseFloat(btoInput);
-        const requiredTorques = calculateRequiredTorques(bto);
-        if(!requiredTorques){
-             setResults(null);
-             return;
-        }
-        const matchedActuator = findMatchingActuator(requiredTorques);
-
-        if (matchedActuator) {
-            const analysis = [
-                { name: 'BTO', req: requiredTorques.bto, act: matchedActuator.torqueCurve[0] },
-                { name: 'RTO', req: requiredTorques.rto, act: matchedActuator.torqueCurve[1] },
-                { name: 'ETO', req: requiredTorques.eto, act: matchedActuator.torqueCurve[2] },
-                { name: 'ETC', req: requiredTorques.etc, act: matchedActuator.torqueCurve[3] },
-                { name: 'RTC', req: requiredTorques.rtc, act: matchedActuator.torqueCurve[4] },
-                { name: 'BTC', req: requiredTorques.btc, act: matchedActuator.torqueCurve[5] },
-            ].map(item => ({ ...item, sf: item.act / item.req }));
-            setResults({ success: true, matchedActuator, analysis });
+        const required = calculateRequiredTorques(bto);
+        if (!required) { setResults(null); return; }
+        const matched = findMatchingActuator(required);
+        if (matched) {
+            const analysis = ['BTO', 'RTO', 'ETO', 'ETC', 'RTC', 'BTC'].map((name, i) => ({
+                name, req: required[name.toLowerCase()], act: matched.torqueCurve[i], sf: matched.torqueCurve[i] / required[name.toLowerCase()]
+            }));
+            setResults({ success: true, matched, analysis });
         } else {
-            setResults({ success: false, message: "No suitable actuator found in the database. Try adjusting the BTO or adding more models to your database." });
+            setResults({ success: false, message: "No suitable actuator found. Add more models to your database or adjust BTO." });
         }
     }, [btoInput, findMatchingActuator]);
 
     return (
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">1. Enter Valve Torque</h2>
-            <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4">
-                <div className="flex-grow w-full">
-                    <label htmlFor="bto_torque" className="block text-sm font-medium text-gray-700">Break to Open (BTO) Torque (Nm)</label>
-                    <input type="number" id="bto_torque" value={btoInput} onChange={(e) => setBtoInput(e.target.value)} placeholder="e.g., 200" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-3"/>
+      <div className="space-y-8 max-w-5xl mx-auto">
+        <Card>
+            <h2 className="text-2xl font-bold text-slate-800 mb-1">Valve Torque Input</h2>
+            <p className="text-slate-500 mb-6">Enter the primary torque requirement to begin sizing.</p>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative flex-grow w-full">
+                    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <span className="text-slate-500 sm:text-sm">BTO</span>
+                    </div>
+                    <input type="number" value={btoInput} onChange={(e) => setBtoInput(e.target.value)} placeholder="e.g., 200" className="block w-full rounded-full border-slate-300 py-3 pl-12 pr-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                         <span className="text-slate-500 sm:text-sm">Nm</span>
+                    </div>
                 </div>
-                <button onClick={handleCalculation} className="w-full sm:w-auto bg-indigo-600 text-white font-semibold py-3 px-6 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">Calculate</button>
+                <button onClick={handleCalculation} className="w-full sm:w-auto bg-indigo-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105">Calculate</button>
             </div>
-        </div>
+        </Card>
         {results && (
-          <div className="mt-8 bg-white p-6 rounded-xl shadow-md">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">2. Sizing Results</h2>
+          <Card className="animate-fade-in">
+            <h2 className="text-2xl font-bold text-slate-800 mb-6">Sizing Results</h2>
             {results.success ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div className="bg-green-50 p-4 rounded-lg border border-green-200"><h3 className="text-sm font-medium text-green-800">Matched Actuator Model</h3><p className="text-2xl font-bold text-green-900 mt-1">{results.matchedActuator.model}</p></div>
-                    <div className="bg-green-50 p-4 rounded-lg border border-green-200"><h3 className="text-sm font-medium text-green-800">Actuator Price</h3><p className="text-2xl font-bold text-green-900 mt-1">${results.matchedActuator.price.toLocaleString()}</p></div>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-center">
+                    <div className="bg-slate-50 p-6 rounded-xl"><h3 className="text-base font-semibold text-slate-500">Selected Actuator</h3><p className="text-3xl font-bold text-indigo-600 mt-1">{results.matched.model}</p></div>
+                    <div className="bg-slate-50 p-6 rounded-xl"><h3 className="text-base font-semibold text-slate-500">Estimated Price</h3><p className="text-3xl font-bold text-indigo-600 mt-1">${results.matched.price.toLocaleString()}</p></div>
                 </div>
                 <AnalysisTable analysis={results.analysis} />
-              </>
+              </div>
             ) : (
-              <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-center"><h3 className="text-lg font-semibold text-red-800">Sizing Failed</h3><p className="mt-2 text-red-700">{results.message}</p></div>
+              <div className="bg-red-50 p-6 rounded-xl text-center"><h3 className="text-lg font-semibold text-red-800">Sizing Failed</h3><p className="mt-2 text-red-700">{results.message}</p></div>
             )}
-          </div>
+          </Card>
         )}
+        <style>{`.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; } @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); }}`}</style>
       </div>
     );
 };
 
+// --- Analysis Table ---
 const AnalysisTable = ({ analysis }) => (
-    <div className="flow-root"><div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8"><div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-    <table className="min-w-full divide-y divide-gray-300"><thead className="bg-gray-50"><tr>
-        <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Position</th>
-        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Required (Nm)</th>
-        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actuator (Nm)</th>
-        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Safety Factor</th>
-    </tr></thead><tbody className="divide-y divide-gray-200 bg-white">
-        {analysis.map((item) => (<tr key={item.name}>
-            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">{item.name}</td>
-            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.req.toFixed(2)}</td>
-            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.act.toFixed(2)}</td>
-            <td className={`whitespace-nowrap px-3 py-4 text-sm font-semibold ${item.sf >= 1.5 ? 'text-green-600' : 'text-red-600'}`}>{item.sf.toFixed(2)}x</td>
-        </tr>))}
-    </tbody></table>
-    </div></div></div></div>
+    <div className="overflow-x-auto"><table className="min-w-full">
+        <thead className="border-b border-slate-200"><tr className="text-left text-sm font-semibold text-slate-500">
+            <th className="p-4">Position</th><th className="p-4">Required (Nm)</th><th className="p-4">Actuator (Nm)</th><th className="p-4">Safety Factor</th>
+        </tr></thead>
+        <tbody>{analysis.map((item, i) => (<tr key={item.name} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+            <td className="p-4 font-medium text-slate-800">{item.name}</td>
+            <td className="p-4 text-slate-600">{item.req.toFixed(2)}</td>
+            <td className="p-4 text-slate-600">{item.act.toFixed(2)}</td>
+            <td className="p-4 font-bold"><span className={`px-3 py-1 rounded-full text-xs ${item.sf >= 1.5 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{item.sf.toFixed(2)}x</span></td>
+        </tr>))}</tbody>
+    </table></div>
 );
 
+// --- Database Manager Component ---
 const DatabaseManager = ({ actuatorList, onAdd, onUpdate, onDelete }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingActuator, setEditingActuator] = useState(null);
 
-    const handleOpenModal = (actuator = null) => {
-        setEditingActuator(actuator);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setEditingActuator(null);
-    };
-
-    const handleSave = (actuator) => {
-        if (actuator.id) {
-            onUpdate(actuator);
-        } else {
-            onAdd(actuator);
-        }
-        handleCloseModal();
-    };
+    const handleOpenModal = (actuator = null) => { setEditingActuator(actuator); setIsModalOpen(true); };
+    const handleCloseModal = () => { setIsModalOpen(false); setEditingActuator(null); };
+    const handleSave = (actuator) => { (actuator.id ? onUpdate : onAdd)(actuator); handleCloseModal(); };
 
     return (
-        <div className="bg-white p-6 rounded-xl shadow-md">
-            <div className="sm:flex sm:items-center">
-                <div className="sm:flex-auto">
-                    <h2 className="text-xl font-semibold text-gray-900">Actuator Database</h2>
-                    <p className="mt-2 text-sm text-gray-700">Manage the list of actuators available for the sizing tool. Data is saved locally.</p>
+        <Card>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <div>
+                    <h2 className="text-2xl font-bold text-slate-800">Actuator Database</h2>
+                    <p className="mt-1 text-slate-500">Manage the list of actuators. Data is saved locally in your browser.</p>
                 </div>
-                <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-                    <button onClick={() => handleOpenModal()} type="button" className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto">
-                        Add Actuator
-                    </button>
-                </div>
+                <button onClick={() => handleOpenModal()} type="button" className="mt-4 sm:mt-0 flex items-center justify-center rounded-full border border-transparent bg-indigo-600 px-6 py-2 text-sm font-semibold text-white shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-transform hover:scale-105">
+                    <PlusIcon /> Add Actuator
+                </button>
             </div>
-
-            <div className="mt-8 flow-root"><div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8"><div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8"><table className="min-w-full divide-y divide-gray-300">
-                <thead><tr>
-                    <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Model</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Price ($)</th>
-                    <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Torque Curve (Nm)</th>
-                    <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0"><span className="sr-only">Edit</span></th>
+            <div className="overflow-x-auto"><table className="min-w-full">
+                <thead className="border-b border-slate-200"><tr className="text-left text-sm font-semibold text-slate-500">
+                    <th className="p-4">Model</th><th className="p-4">Price ($)</th><th className="p-4">Torque Curve (Nm)</th><th className="p-4">Actions</th>
                 </tr></thead>
-                <tbody className="divide-y divide-gray-200">
-                    {actuatorList.map((actuator) => (
-                        <tr key={actuator.id}>
-                            <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">{actuator.model}</td>
-                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${actuator.price.toLocaleString()}</td>
-                            <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{actuator.torqueCurve.join(', ')}</td>
-                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                <button onClick={() => handleOpenModal(actuator)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                <button onClick={() => onDelete(actuator.id)} className="text-red-600 hover:text-red-900 ml-4">Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table></div></div></div>
-
+                <tbody>{actuatorList.map((actuator) => (<tr key={actuator.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <td className="p-4 font-medium text-slate-800">{actuator.model}</td>
+                    <td className="p-4 text-slate-600">${actuator.price.toLocaleString()}</td>
+                    <td className="p-4 text-slate-600 text-xs">{actuator.torqueCurve.join(' / ')}</td>
+                    <td className="p-4 text-sm font-medium space-x-4">
+                        <button onClick={() => handleOpenModal(actuator)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
+                        <button onClick={() => onDelete(actuator.id)} className="text-red-600 hover:text-red-900">Delete</button>
+                    </td>
+                </tr>))}</tbody>
+            </table></div>
             {isModalOpen && <ActuatorForm actuator={editingActuator} onSave={handleSave} onClose={handleCloseModal} />}
-        </div>
+        </Card>
     );
 };
 
+// --- Actuator Form Modal ---
 const ActuatorForm = ({ actuator, onSave, onClose }) => {
-    const [formData, setFormData] = useState(
-        actuator || { model: '', price: '', torqueCurve: Array(6).fill('') }
-    );
+    const [formData, setFormData] = useState(actuator || { model: '', price: '', torqueCurve: Array(6).fill('') });
     const [error, setError] = useState('');
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleTorqueChange = (index, value) => {
-        const newTorqueCurve = [...formData.torqueCurve];
-        newTorqueCurve[index] = value;
-        setFormData(prev => ({ ...prev, torqueCurve: newTorqueCurve }));
-    };
-
+    const handleChange = e => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleTorqueChange = (i, val) => { const tc = [...formData.torqueCurve]; tc[i] = val; setFormData(p => ({ ...p, torqueCurve: tc }));};
+    
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.model || !formData.price || formData.torqueCurve.some(t => t === '' || isNaN(parseFloat(t)))) {
-            setError('Please fill all fields with valid numbers.');
-            return;
+            setError('Please fill all fields with valid numbers.'); return;
         }
-        const finalData = {
-            ...formData,
-            price: parseFloat(formData.price),
-            torqueCurve: formData.torqueCurve.map(t => parseFloat(t)),
-        };
-        onSave(finalData);
+        onSave({ ...formData, price: parseFloat(formData.price), torqueCurve: formData.torqueCurve.map(t => parseFloat(t)) });
     };
-
+    
     const torqueLabels = ['BTO', 'RTO', 'ETO', 'ETC', 'RTC', 'BTC'];
-
+    
     return (
-        <div className="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <div className="fixed inset-0 z-10 overflow-y-auto">
-                <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-                    <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-                        <form onSubmit={handleSubmit}>
-                            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                                <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">{actuator ? 'Edit' : 'Add'} Actuator</h3>
-                                <div className="mt-4 space-y-4">
-                                    <div>
-                                        <label htmlFor="model" className="block text-sm font-medium text-gray-700">Model Name</label>
-                                        <input type="text" name="model" id="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"/>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price ($)</label>
-                                        <input type="number" name="price" id="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"/>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Torque Curve (Nm)</label>
-                                        <div className="mt-2 grid grid-cols-3 gap-4">
-                                            {torqueLabels.map((label, index) => (
-                                                <div key={index}>
-                                                    <label htmlFor={`torque-${index}`} className="block text-xs font-medium text-gray-500">{label}</label>
-                                                    <input type="number" id={`torque-${index}`} value={formData.torqueCurve[index]} onChange={(e) => handleTorqueChange(index, e.target.value)} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2"/>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    {error && <p className="text-sm text-red-600">{error}</p>}
+        <div className="relative z-10" aria-modal="true"><div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+            <div className="fixed inset-0 z-10 overflow-y-auto"><div className="flex min-h-full items-center justify-center p-4">
+                <Card className="w-full max-w-lg animate-fade-in">
+                    <form onSubmit={handleSubmit}>
+                        <h3 className="text-xl font-bold text-slate-800 mb-6">{actuator ? 'Edit' : 'Add New'} Actuator</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label htmlFor="model" className="block text-sm font-medium text-slate-600">Model Name</label>
+                                <input type="text" name="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2.5"/>
+                            </div>
+                            <div>
+                                <label htmlFor="price" className="block text-sm font-medium text-slate-600">Price ($)</label>
+                                <input type="number" name="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2.5"/>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-600 mb-2">Torque Curve (Nm)</label>
+                                <div className="grid grid-cols-3 gap-3">
+                                    {torqueLabels.map((label, i) => (<div key={i}>
+                                        <label className="block text-xs font-medium text-slate-500">{label}</label>
+                                        <input type="number" value={formData.torqueCurve[i]} onChange={(e) => handleTorqueChange(i, e.target.value)} required className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm p-2"/>
+                                    </div>))}
                                 </div>
                             </div>
-                            <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                                <button type="submit" className="inline-flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm">Save</button>
-                                <button type="button" onClick={onClose} className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+                            {error && <p className="text-sm text-red-600">{error}</p>}
+                        </div>
+                        <div className="mt-8 flex justify-end space-x-3">
+                            <button type="button" onClick={onClose} className="bg-slate-200 text-slate-800 font-bold py-2 px-6 rounded-full hover:bg-slate-300 transition-colors">Cancel</button>
+                            <button type="submit" className="bg-indigo-600 text-white font-bold py-2 px-6 rounded-full shadow-lg hover:bg-indigo-700 transition-colors">Save Actuator</button>
+                        </div>
+                    </form>
+                </Card>
+            </div></div>
         </div>
     );
 };
 
 export default App;
-
