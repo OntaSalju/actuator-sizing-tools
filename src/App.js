@@ -11,11 +11,7 @@ const defaultActuatorDatabase = [
   { id: '7', model: 'AT-990', price: 2800, torqueCurve: [5000, 4000, 3200, 5500, 6000, 6500] },
 ];
 
-const LOCAL_STORAGE_KEY = 'actuator_database_offline_v3';
-
-// --- SVG Icon Components ---
-const SizingIcon = () => <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>;
-const DatabaseIcon = () => <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8-4v0c0 2.21-3.582 4-8 4s-8-1.79-8-4v0z"></path></svg>;
+const LOCAL_STORAGE_KEY = 'actuator_database_offline_v4'; // New version key
 
 // --- Main App Layout Component ---
 const App = () => {
@@ -45,36 +41,39 @@ const App = () => {
     const handleDeleteActuator = (id) => setActuatorList(prev => prev.filter(actuator => actuator.id !== id));
 
     return (
-        <div className="flex h-screen bg-gray-100 font-sans">
-            {/* Sidebar Navigation */}
-            <aside className="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col">
-                <div className="h-16 flex items-center justify-center px-4 border-b border-gray-200">
-                     <img src="/logo.png" alt="Company Logo" className="h-8" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x40/ef4444/ffffff?text=Upload+logo.png'; }}/>
-                </div>
-                <nav className="flex-1 px-4 py-6 space-y-2">
-                    <NavItem icon={<SizingIcon />} label="Sizing Tool" isActive={activeView === 'sizing'} onClick={() => setActiveView('sizing')} />
-                    <NavItem icon={<DatabaseIcon />} label="Database" isActive={activeView === 'database'} onClick={() => setActiveView('database')} />
-                </nav>
-            </aside>
+        <div className="bg-gray-50 min-h-screen font-sans">
+            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <header className="mb-10">
+                    <h1 className="text-4xl font-bold text-gray-800">Offline Actuator Sizing & Pricing Tool</h1>
+                    <p className="mt-2 text-lg text-gray-500">Size your actuator or manage your local offline database.</p>
+                </header>
 
-            {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-12">
-                 {activeView === 'sizing' && <SizingTool actuatorDatabase={actuatorList} />}
-                 {activeView === 'database' && <DatabaseManager actuatorList={actuatorList} onAdd={handleAddActuator} onUpdate={handleUpdateActuator} onDelete={handleDeleteActuator} />}
-            </main>
+                <nav className="mb-8 border-b border-gray-200">
+                    <div className="flex space-x-8">
+                        <TabButton label="Sizing Tool" isActive={activeView === 'sizing'} onClick={() => setActiveView('sizing')} />
+                        <TabButton label="Manage Database" isActive={activeView === 'database'} onClick={() => setActiveView('database')} />
+                    </div>
+                </nav>
+
+                <main>
+                    {activeView === 'sizing' && <SizingTool actuatorDatabase={actuatorList} />}
+                    {activeView === 'database' && <DatabaseManager actuatorList={actuatorList} onAdd={handleAddActuator} onUpdate={handleUpdateActuator} onDelete={handleDeleteActuator} />}
+                </main>
+            </div>
         </div>
     );
 };
 
-const NavItem = ({ icon, label, isActive, onClick }) => (
-    <button onClick={onClick} className={`w-full flex items-center px-4 py-3 text-left text-base font-medium rounded-full transition-all duration-300 ${isActive ? 'bg-indigo-600 text-white shadow-lg' : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-600'}`}>
-        {icon}
-        <span className="ml-3">{label}</span>
+const TabButton = ({ label, isActive, onClick }) => (
+    <button onClick={onClick} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${isActive ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+        {label}
     </button>
 );
 
-// Other components remain largely the same, but will be styled within the new layout
-const Card = ({ children, className }) => <div className={`bg-white rounded-xl border border-gray-200 p-6 ${className}`}>{children}</div>;
+// --- Reusable UI Components ---
+const Card = ({ children, className }) => <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-8 ${className}`}>{children}</div>;
+const PrimaryButton = ({ children, onClick, className }) => <button onClick={onClick} className={`bg-indigo-600 text-white font-semibold py-2 px-5 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${className}`}>{children}</button>;
+const SecondaryButton = ({ children, onClick, className }) => <button onClick={onClick} className={`bg-white text-gray-700 border border-gray-300 font-semibold py-2 px-5 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${className}`}>{children}</button>;
 
 const SizingTool = ({ actuatorDatabase }) => {
     const [btoInput, setBtoInput] = useState('');
@@ -107,34 +106,31 @@ const SizingTool = ({ actuatorDatabase }) => {
     }, [btoInput, findMatchingActuator]);
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            <header>
-                <h1 className="text-3xl font-bold text-gray-900">Actuator Sizing Calculator</h1>
-                <p className="mt-2 text-gray-600">Enter the valve's Break-to-Open torque to find a suitable actuator.</p>
-            </header>
+        <div className="space-y-8">
             <Card>
-                <div className="flex flex-col sm:flex-row items-center gap-4">
+                <h2 className="text-xl font-semibold text-gray-800 mb-1">1. Enter Valve Torque</h2>
+                <div className="mt-6 flex flex-col sm:flex-row items-end gap-4">
                     <div className="w-full">
-                        <label htmlFor="bto_torque" className="block text-sm font-medium text-gray-700 mb-1">BTO Torque (Nm)</label>
-                        <input type="number" id="bto_torque" value={btoInput} onChange={(e) => setBtoInput(e.target.value)} placeholder="e.g., 200" className="block w-full rounded-full border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"/>
+                        <label htmlFor="bto_torque" className="block text-sm font-medium text-gray-700 mb-1">Break to Open (BTO) Torque (Nm)</label>
+                        <input type="number" id="bto_torque" value={btoInput} onChange={(e) => setBtoInput(e.target.value)} placeholder="e.g., 200" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-3"/>
                     </div>
-                    <button onClick={handleCalculation} className="w-full sm:w-auto mt-2 sm:mt-6 bg-indigo-600 text-white font-semibold py-3 px-8 rounded-full shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105">Calculate</button>
+                    <PrimaryButton onClick={handleCalculation} className="w-full sm:w-auto">Calculate</PrimaryButton>
                 </div>
             </Card>
 
             {results && (
-              <div className="animate-fade-in">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">Results</h2>
+              <div className="animate-fade-in space-y-8">
+                <h2 className="text-2xl font-semibold text-gray-800">2. Sizing Results</h2>
                 {results.success ? (
-                  <div className="space-y-6">
+                  <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card><h3 className="text-gray-500">Selected Model</h3><p className="text-2xl font-bold text-gray-900 mt-1">{results.matched.model}</p></Card>
-                        <Card><h3 className="text-gray-500">Estimated Price</h3><p className="text-2xl font-bold text-gray-900 mt-1">€{results.matched.price.toLocaleString()}</p></Card>
+                        <Card><h3 className="text-gray-500">Selected Model</h3><p className="text-3xl font-bold text-gray-900 mt-1">{results.matched.model}</p></Card>
+                        <Card><h3 className="text-gray-500">Estimated Price</h3><p className="text-3xl font-bold text-gray-900 mt-1">€{results.matched.price.toLocaleString()}</p></Card>
                     </div>
                     <Card><AnalysisTable analysis={results.analysis} /></Card>
-                  </div>
+                  </>
                 ) : (
-                  <Card><div className="text-center text-red-600">{results.message}</div></Card>
+                  <Card><div className="text-center text-red-600 font-medium">{results.message}</div></Card>
                 )}
               </div>
             )}
@@ -144,7 +140,7 @@ const SizingTool = ({ actuatorDatabase }) => {
 };
 
 const AnalysisTable = ({ analysis }) => (
-    <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
+    <div className="overflow-x-auto -mx-6 sm:-mx-8"><table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50"><tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             <th className="px-6 py-3">Position</th><th className="px-6 py-3">Required (Nm)</th><th className="px-6 py-3">Actuator (Nm)</th><th className="px-6 py-3">Safety Factor</th>
         </tr></thead>
@@ -168,25 +164,22 @@ const DatabaseManager = ({ actuatorList, onAdd, onUpdate, onDelete }) => {
     const handleSave = (actuator) => { (actuator.id ? onUpdate : onAdd)(actuator); handleCloseModal(); };
 
     return (
-        <div className="max-w-6xl mx-auto">
-             <header className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Actuator Database</h1>
-                    <p className="mt-2 text-gray-600">Add, edit, or remove actuators from the local database.</p>
-                </div>
-                <button onClick={() => handleOpenModal()} className="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-105">Add Actuator</button>
+        <div className="space-y-6">
+             <header className="flex justify-between items-center">
+                <h2 className="text-2xl font-semibold text-gray-800">Actuator Database</h2>
+                <PrimaryButton onClick={() => handleOpenModal()}>Add Actuator</PrimaryButton>
             </header>
             <Card>
-                <div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200">
+                <div className="overflow-x-auto -mx-6 sm:-mx-8"><table className="min-w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50"><tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        <th className="px-6 py-3">Model</th><th className="px-6 py-3">Price (€)</th><th className="px-6 py-3">Torque Curve (Nm)</th><th className="px-6 py-3">Actions</th>
+                        <th className="px-6 py-3">Model</th><th className="px-6 py-3">Price (€)</th><th className="px-6 py-3">Torque Curve (Nm)</th><th className="px-6 py-3 text-right">Actions</th>
                     </tr></thead>
                     <tbody className="bg-white divide-y divide-gray-200">{actuatorList.map(actuator => (
                         <tr key={actuator.id}>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{actuator.model}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">€{actuator.price.toLocaleString()}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{actuator.torqueCurve.join(' / ')}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right space-x-4">
                                 <button onClick={() => handleOpenModal(actuator)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
                                 <button onClick={() => onDelete(actuator.id)} className="text-red-600 hover:text-red-900">Delete</button>
                             </td>
@@ -216,15 +209,15 @@ const ActuatorForm = ({ actuator, onSave, onClose }) => {
                     <form onSubmit={handleSubmit}><div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <h3 className="text-lg font-medium leading-6 text-gray-900">{actuator ? 'Edit' : 'Add'} Actuator</h3>
                         <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                            <div className="sm:col-span-3"><label htmlFor="model" className="block text-sm font-medium text-gray-700">Model</label><input type="text" name="model" id="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-full border-gray-300 p-2 shadow-sm"/></div>
-                            <div className="sm:col-span-3"><label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (€)</label><input type="number" name="price" id="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-full border-gray-300 p-2 shadow-sm"/></div>
+                            <div className="sm:col-span-3"><label htmlFor="model" className="block text-sm font-medium text-gray-700">Model</label><input type="text" name="model" id="model" value={formData.model} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
+                            <div className="sm:col-span-3"><label htmlFor="price" className="block text-sm font-medium text-gray-700">Price (€)</label><input type="number" name="price" id="price" value={formData.price} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
                             {['BTO', 'RTO', 'ETO', 'ETC', 'RTC', 'BTC'].map((label, i) => (
                                 <div className="sm:col-span-2" key={label}><label className="block text-sm font-medium text-gray-700">{label} (Nm)</label><input type="number" value={formData.torqueCurve[i]} onChange={e => handleTorqueChange(i, e.target.value)} required className="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm"/></div>
                             ))}
                         </div>
                     </div><div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                        <button type="submit" className="inline-flex w-full justify-center rounded-full border border-transparent bg-indigo-600 px-6 py-2 text-base font-medium text-white shadow-sm hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm">Save</button>
-                        <button type="button" onClick={onClose} className="mt-3 inline-flex w-full justify-center rounded-full border border-gray-300 bg-white px-6 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Cancel</button>
+                        <PrimaryButton type="submit">Save</PrimaryButton>
+                        <SecondaryButton onClick={onClose} className="sm:ml-3 mt-3 sm:mt-0">Cancel</SecondaryButton>
                     </div></form>
                 </div>
             </div></div>
