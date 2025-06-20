@@ -11,7 +11,7 @@ const defaultActuatorDatabase = [
   { id: '7', model: 'AT-990', price: 2800, torqueCurve: [5000, 4000, 3200, 5500, 6000, 6500] },
 ];
 
-const LOCAL_STORAGE_KEY = 'actuator_database_offline_v5'; // New version key
+const LOCAL_STORAGE_KEY = 'actuator_database_offline_v8'; // New version key
 
 // --- Main App Layout Component ---
 const App = () => {
@@ -47,15 +47,15 @@ const App = () => {
                     <img
                         src="/logo.png"
                         alt="Company Logo"
-                        className="h-12 mb-6"
-                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x50/ef4444/ffffff?text=Upload+logo.png'; }}
+                        className="h-16 mx-auto mb-6"
+                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/180x60/ef4444/ffffff?text=Upload+logo.png'; }}
                     />
-                    <h1 className="text-4xl font-bold text-gray-800">Offline Actuator Sizing & Pricing Tool</h1>
-                    <p className="mt-2 text-lg text-gray-500">Size your actuator or manage your local offline database.</p>
+                    <h1 className="text-4xl font-bold text-gray-800 text-center">Actuator Sizing & Pricing Tool</h1>
+                    <p className="mt-2 text-lg text-gray-500 text-center">Size your actuator or manage your local database.</p>
                 </header>
 
-                <nav className="mb-8 border-b border-gray-300">
-                    <div className="flex space-x-8">
+                <nav className="mb-8 border-b-2 border-[rgb(139,0,0)]">
+                    <div className="flex">
                         <TabButton label="Sizing Tool" isActive={activeView === 'sizing'} onClick={() => setActiveView('sizing')} />
                         <TabButton label="Manage Database" isActive={activeView === 'database'} onClick={() => setActiveView('database')} />
                     </div>
@@ -71,15 +71,20 @@ const App = () => {
 };
 
 const TabButton = ({ label, isActive, onClick }) => (
-    <button onClick={onClick} className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${isActive ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
+    <button onClick={onClick} className={`py-3 px-5 font-semibold text-sm transition-all duration-200 -mb-0.5 ${
+        isActive
+            ? 'bg-[rgb(139,0,0)] text-white rounded-t-lg shadow-md border-x-2 border-t-2 border-[rgb(139,0,0)]'
+            : 'text-gray-600 hover:bg-red-50'
+    }`}>
         {label}
     </button>
 );
 
+
 // --- Reusable UI Components ---
 const Card = ({ children, className }) => <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-8 ${className}`}>{children}</div>;
-const PrimaryButton = ({ children, onClick, type = 'button', className = '' }) => <button type={type} onClick={onClick} className={`bg-[rgb(173,216,230)] text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-[rgb(150,200,220)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors ${className}`}>{children}</button>;
-const SecondaryButton = ({ children, onClick, className }) => <button type="button" onClick={onClick} className={`bg-white text-gray-700 border border-gray-300 font-semibold py-2 px-6 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 transition-colors ${className}`}>{children}</button>;
+const PrimaryButton = ({ children, onClick, type = 'button', className = '' }) => <button type={type} onClick={onClick} className={`bg-[rgb(139,0,0)] text-white font-semibold py-2 px-6 rounded-full shadow-md hover:bg-[rgb(169,0,0)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[rgb(139,0,0)] transition-colors ${className}`}>{children}</button>;
+const SecondaryButton = ({ children, onClick, className }) => <button type="button" onClick={onClick} className={`bg-white text-gray-700 border border-gray-300 font-semibold py-2 px-6 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 transition-colors ${className}`}>{children}</button>;
 
 const SizingTool = ({ actuatorDatabase }) => {
     const [btoInput, setBtoInput] = useState('');
@@ -118,7 +123,7 @@ const SizingTool = ({ actuatorDatabase }) => {
                 <div className="mt-6 flex flex-col sm:flex-row items-end gap-4">
                     <div className="w-full">
                         <label htmlFor="bto_torque" className="block text-sm font-medium text-gray-700 mb-1">Break to Open (BTO) Torque (Nm)</label>
-                        <input type="number" id="bto_torque" value={btoInput} onChange={(e) => setBtoInput(e.target.value)} placeholder="e.g., 200" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3"/>
+                        <input type="number" id="bto_torque" value={btoInput} onChange={(e) => setBtoInput(e.target.value)} placeholder="e.g., 200" className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 p-3"/>
                     </div>
                     <PrimaryButton onClick={handleCalculation} className="w-full sm:w-auto">Calculate</PrimaryButton>
                 </div>
@@ -186,7 +191,7 @@ const DatabaseManager = ({ actuatorList, onAdd, onUpdate, onDelete }) => {
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">€{actuator.price.toLocaleString()}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{actuator.torqueCurve.join(' / ')}</td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right space-x-4">
-                                <button onClick={() => handleOpenModal(actuator)} className="text-blue-600 hover:text-blue-900">Edit</button>
+                                <button onClick={() => handleOpenModal(actuator)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
                                 <button onClick={() => onDelete(actuator.id)} className="text-red-600 hover:text-red-900">Delete</button>
                             </td>
                         </tr>
@@ -232,4 +237,3 @@ const ActuatorForm = ({ actuator, onSave, onClose }) => {
 };
 
 export default App;
-
