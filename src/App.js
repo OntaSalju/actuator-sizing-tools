@@ -72,8 +72,8 @@ const TabButton = ({ label, isActive, onClick }) => (
 
 // --- Reusable UI Components ---
 const Card = ({ children, className }) => <div className={`bg-white rounded-lg border border-gray-200 shadow-sm p-6 sm:p-8 ${className}`}>{children}</div>;
-const PrimaryButton = ({ children, onClick, className }) => <button onClick={onClick} className={`bg-indigo-600 text-white font-semibold py-2 px-5 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${className}`}>{children}</button>;
-const SecondaryButton = ({ children, onClick, className }) => <button onClick={onClick} className={`bg-white text-gray-700 border border-gray-300 font-semibold py-2 px-5 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${className}`}>{children}</button>;
+const PrimaryButton = ({ children, onClick, type = 'button', className = '' }) => <button type={type} onClick={onClick} className={`bg-indigo-600 text-white font-semibold py-2 px-5 rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${className}`}>{children}</button>;
+const SecondaryButton = ({ children, onClick, className }) => <button type="button" onClick={onClick} className={`bg-white text-gray-700 border border-gray-300 font-semibold py-2 px-5 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${className}`}>{children}</button>;
 
 const SizingTool = ({ actuatorDatabase }) => {
     const [btoInput, setBtoInput] = useState('');
