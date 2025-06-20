@@ -41,13 +41,13 @@ const App = () => {
     const handleDeleteActuator = (id) => setActuatorList(prev => prev.filter(actuator => actuator.id !== id));
 
     return (
-        <div className="bg-gray-50 min-h-screen font-sans">
-            <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <header className="mb-10 text-center">
+        <div className="bg-gray-50 min-h-screen font-sans flex items-center justify-center">
+            <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                 <header className="mb-10">
                     <img
                         src="/logo.png"
                         alt="Company Logo"
-                        className="h-12 mx-auto mb-6"
+                        className="h-12 mb-6"
                         onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x50/ef4444/ffffff?text=Upload+logo.png'; }}
                     />
                     <h1 className="text-4xl font-bold text-gray-800">Offline Actuator Sizing & Pricing Tool</h1>
