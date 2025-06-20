@@ -50,12 +50,12 @@ const App = () => {
             <div className="relative container mx-auto p-4 sm:p-6 lg:p-8">
                 {/* Logo Component */}
                 <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-20">
-                    {/* The placeholder has been replaced with your logo from Google Drive. */}
+                    {/* The logo is now referenced from the /public folder. */}
                     <img
-                        src="https://drive.google.com/uc?export=view&id=1y0OHHtX3JvPyn8kyzTfG4fN1kPzbjNd-"
+                        src="/logo.png" // Changed from Google Drive link
                         alt="Company Logo"
                         className="h-8 sm:h-10"
-                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x40/ef4444/ffffff?text=Logo+Error'; }}
+                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/150x40/ef4444/ffffff?text=Logo+Not+Found'; }}
                     />
                 </div>
                 <header className="text-center mb-10 pt-16 sm:pt-0">
@@ -273,4 +273,3 @@ const ActuatorForm = ({ actuator, onSave, onClose }) => {
 };
 
 export default App;
-
